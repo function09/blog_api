@@ -17,10 +17,12 @@ def register():
         db = get_db()
         error = None
 
-        if username == None:
+        if not username:
             error = 'Username is required.'
-        elif password == None:
+        elif not password:
             error = 'Password is required.'
+        elif len(password) < 8:
+            error = 'Password must be at least 8 characters long'
 
         if error is None:
             try:
@@ -38,16 +40,16 @@ def register():
 
     return render_template('auth/register.html')
 
-@bp.route('/login,', methods =('GET, POST'))
+@bp.route('/login', methods =('GET', 'POST'))
 def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
         db = get_db()
         error = None
-        user = db.execute('SELECT FROM user WHERE username = ?', (username,)).fetchone()
+        user = db.execute('SELECT * FROM user WHERE username = ?', (username,)).fetchone()
 
-        if username is None:
+        if user is None:
             error = "Incorrect username."
 
         elif not check_password_hash(user['password'], password):
@@ -69,8 +71,12 @@ def load_logged_in_user():
 
     if user_id is None:
         g.user = None
-    else: g.user = get_db().execute('SELECT * FROM user WHERE id = ?', (id,)).fetchone()
+    else: g.user = get_db().execute('SELECT * FROM user WHERE id = ?', (user_id,)).fetchone()
 
+@bp.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('index'))
 
 def login_required(view):
     @functools.wraps(view)
