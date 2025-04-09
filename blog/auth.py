@@ -40,7 +40,7 @@ def register():
 
     return render_template('auth/register.html')
 
-@bp.route('/login', methods =('GET', 'POST'))
+@bp.route('/login', methods=('GET', 'POST'))
 def login():
     if request.method == 'POST':
         username = request.form['username']
@@ -58,7 +58,7 @@ def login():
         if error is None:
             session.clear()
             session['user_id'] = user['id']
-            return redirect(url_for('index'))
+            return redirect(url_for('auth.login'))
 
         flash(error)
 
