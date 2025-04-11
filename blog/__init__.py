@@ -1,6 +1,7 @@
 import os
 
 from flask import Flask
+from flask_cors import CORS
 
 def create_app(config_name=None):
     app = Flask(__name__)
@@ -32,6 +33,8 @@ def create_app(config_name=None):
 
     from . import blog
     app.register_blueprint(blog.bp)
+    
+    CORS(app)
 
     return app
 
