@@ -8,9 +8,10 @@
 	<input type="text" id="title" />
 	<label for="blogSummary">Blog summary:</label>
 	<textarea name="blogSummary" id="blogSummary" rows="5" cols="80"></textarea>
-	<div id="editor"></div>
-	<button id="getTextButton" onclick="sendBlogData(getBlogContent())">Get Text</button>
+	<div id="editor"></div> <input type="hidden" id="quillContent" name="quillContent" />
 
+	<button id="getTextButton" onclick="sendBlogData(getBlogContent())">Get Text</button>
+	<div id="message"></div>
 	<script>
 		const toolbarOptions = [
 			['bold', 'italic', 'underline', 'strike'],
@@ -36,7 +37,6 @@
 			} else {
 				blogContent = quill.getContents()
 			}
-			console.log(blogContent)
 
 			const blogData = {title: title, blogSummary: blogSummary, blogContent: blogContent}
 
@@ -56,13 +56,22 @@
 				})
 
 				if (!response.ok) {
-					console.error("Error sending data to server, please verify data integrity")
+					const errorMessage = await response.json();
+					console.error("Error sending data to the server: ", errorMessage)
+					renderMessage(errorMessage.error)
 				}
+
 
 			}
 			catch (error) {
 				console.error(error)
 			}
+
+		}
+
+		function renderMessage(message) {
+			const messageDiv = document.querySelector("#message")
+			messageDiv.textContent = message
 		}
 	</script>
 </body>
