@@ -54,11 +54,11 @@
 					},
 					body: JSON.stringify(blogData)
 				})
-
+				console.log(response.ok)
 				if (!response.ok) {
 					const errorMessage = await response.json();
 					console.error("Error sending data to the server: ", errorMessage)
-					renderMessage(errorMessage.error)
+					renderMessage(errorMessage.message)
 				}
 
 

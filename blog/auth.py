@@ -58,7 +58,8 @@ def login():
         if error is None:
             session.clear()
             session['user_id'] = user['id']
-            return redirect(url_for('auth.login'))
+            print(session.get('user_id'))
+            return redirect(url_for('blog.createBlogPost'))
 
         flash(error)
 
