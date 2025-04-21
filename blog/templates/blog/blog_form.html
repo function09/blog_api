@@ -38,7 +38,7 @@
 				blogContent = quill.getContents()
 			}
 
-			const blogData = {title: title, blogSummary: blogSummary, blogContent: blogContent}
+			const blogData = {title: title, blogSummary: blogSummary, blogContent: JSON.stringify(blogContent)}
 
 			return blogData
 

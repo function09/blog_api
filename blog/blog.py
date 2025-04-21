@@ -18,7 +18,7 @@ def createBlogPost():
             title = data['title']
             blog_summary = data['blogSummary']
             blog_content = data['blogContent']
-            print(session)
+
             if not title:
                 return json.jsonify({"status": 400, "message": "A title must be included"}), 400
 
@@ -31,7 +31,11 @@ def createBlogPost():
             try:
                 user_id = session.get('user_id')
                 today = datetime.datetime.now().isoformat()
-                db.execute('INSERT INTO blog_posts (user_id, created_at, blog_title, synopsis)' 'VALUES (?, ?, ?, ?)', (user_id, today, title, blog_summary))
+                cursor = db.execute('INSERT INTO blog_posts (user_id, created_at, blog_title, synopsis)' 'VALUES (?, ?, ?, ?)', (user_id, today, title, blog_summary))
+                db.commit()
+                print(cursor.lastrowid)
+                print(blog_content)
+                db.execute('INSERT INTO blog_content (blog_post_id, blog_post)' 'VALUES(?,?)', (cursor.lastrowid, blog_content))
                 db.commit()
                 return json.jsonify({"status": 200, "message": "Blog post created successfully"}), 200
             except Exception as e: 
