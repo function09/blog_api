@@ -60,7 +60,7 @@ def login():
             session.clear()
             session['user_id'] = user['id']
             print(session.get('user_id'))
-            return redirect(url_for('blog.createBlogPost'))
+            return redirect(url_for('blog.create'))
 
         flash(error)
 

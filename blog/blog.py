@@ -9,9 +9,8 @@ from blog.db import get_db
 
 bp = Blueprint('blog', __name__, url_prefix='/blog')
 
-
 @bp.route('/create', methods=('GET','POST'))
-def createBlogPost():
+def create():
     if request.method == 'POST':
             db = get_db()
             data = request.get_json()
@@ -31,10 +30,8 @@ def createBlogPost():
             try:
                 user_id = session.get('user_id')
                 today = datetime.datetime.now().isoformat()
-                cursor = db.execute('INSERT INTO blog_posts (user_id, created_at, blog_title, synopsis)' 'VALUES (?, ?, ?, ?)', (user_id, today, title, blog_summary))
+                cursor = db.execute('INSERT INTO blog_posts (user_id, created_at, blog_title, synopsis, published)' 'VALUES (?, ?, ?, ?, ?)', (user_id, today, title, blog_summary, 0))
                 db.commit()
-                print(cursor.lastrowid)
-                print(blog_content)
                 db.execute('INSERT INTO blog_content (blog_post_id, blog_post)' 'VALUES(?,?)', (cursor.lastrowid, blog_content))
                 db.commit()
                 return json.jsonify({"status": 200, "message": "Blog post created successfully"}), 200
@@ -42,3 +39,29 @@ def createBlogPost():
                 print("An unexpected error occured: ", e)
 
     return render_template('blog/blog_form.html')
+
+@bp.route('/posts')
+def listBlogPosts():
+    try:
+        db = get_db()
+        posts = db.execute('SELECT id, blog_title, synopsis, created_at FROM blog_posts').fetchall()
+    except Exception as e:
+        print("An unexpected error occured: ", e)
+        return "An error occured while fetching from database", 500
+    return render_template('blog/blog_posts.html', posts=posts)
+
+@bp.route('/posts/<int:post_id>')
+def showBlogPost(post_id):
+    db = get_db()
+    try:
+        post = db.execute(
+            'SELECT bp.id, bp.blog_title,bp.created_at, bp.synopsis, bc.blog_post '
+            'FROM blog_posts bp ' 
+            'LEFT JOIN blog_content bc ON bp.id = bc.blog_post_id ' 
+            'WHERE bp.id = ?', 
+            (post_id,),
+            ).fetchone()
+    except Exception as e:
+        print('An exception occured: ', e)
+        return 'An error occured while fetching blog post', 500
+    return render_template('blog/blog_post.html', post=post)

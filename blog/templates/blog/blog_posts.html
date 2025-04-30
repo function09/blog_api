@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Blog Posts</title>
+    <style>
+        #wrapper {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+
+        }
+
+        #blogPostWrapper {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: start;
+            padding: 15px;
+            margin: 0 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id='wrapper'>
+       {% for post in posts %}
+        <div id='blogPostWrapper'>
+            <div> {{ post['created_at'] }} </div>
+            <div> {{ post['blog_title'] }} </div>
+            <div> {{ post['synopsis'] }} </div>
+            <a href="{{ url_for('.showBlogPost', post_id=post['id'])}}">View Post</a>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+
+</html>

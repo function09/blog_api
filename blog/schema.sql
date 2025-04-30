@@ -14,6 +14,7 @@ CREATE TABLE blog_posts(
 			created_at TEXT NOT NULL,
 			blog_title TEXT NOT NULL,
 			synopsis TEXT NOT NULL,
+			published BOOLEAN NOT NULL,
 			FOREIGN KEY (user_id) REFERENCES user(id)
 );
 
