@@ -8,7 +8,18 @@
 </head>
 
 <body>
-	<div> This is where blog posts go</div>
-</body>
+		<div> {{ post['blog_title'] }}</div>
+		<div> {{ post['synopsis'] }} </div>
+		<div>{{post['created_at']}}</div>
+		<div id='blogContent'>{{post['blog_post']}}</div>
 
+		<a href="">Edit</a> 
+		<a href="{{url_for('.listBlogPosts')}}">Return to Blog Posts</a>
+</body>
+<script>
+
+const text = document.querySelector('#blogContent')
+const textObject = JSON.parse(text.textContent).ops[0].insert
+text.textContent = textObject
+</script>
 </html>

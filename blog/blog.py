@@ -3,6 +3,7 @@ from sqlite3 import Error, IntegrityError
 
 from flask import (Blueprint, flash, g, redirect, render_template, request, url_for, json, abort, session)
 
+from blog.auth import login, login_required
 from blog.db import get_db
 
 
@@ -10,6 +11,7 @@ from blog.db import get_db
 bp = Blueprint('blog', __name__, url_prefix='/blog')
 
 @bp.route('/create', methods=('GET','POST'))
+@login_required
 def create():
     if request.method == 'POST':
             db = get_db()
@@ -34,13 +36,14 @@ def create():
                 db.commit()
                 db.execute('INSERT INTO blog_content (blog_post_id, blog_post)' 'VALUES(?,?)', (cursor.lastrowid, blog_content))
                 db.commit()
-                return json.jsonify({"status": 200, "message": "Blog post created successfully"}), 200
+                return json.jsonify({"status": 200, "message": "Blog post created successfully", "redirectUrl": url_for('blog.listBlogPosts')}), 200
             except Exception as e: 
                 print("An unexpected error occured: ", e)
 
     return render_template('blog/blog_form.html')
 
 @bp.route('/posts')
+@login_required
 def listBlogPosts():
     try:
         db = get_db()
@@ -64,4 +67,6 @@ def showBlogPost(post_id):
     except Exception as e:
         print('An exception occured: ', e)
         return 'An error occured while fetching blog post', 500
+    if post is None:
+        print('No results for query were found')
     return render_template('blog/blog_post.html', post=post)

@@ -54,14 +54,15 @@
 					},
 					body: JSON.stringify(blogData)
 				})
-				console.log(response.ok)
 				if (!response.ok) {
 					const errorMessage = await response.json();
 					console.error("Error sending data to the server: ", errorMessage)
 					renderMessage(errorMessage.message)
 				}
-
-
+				const data = await response.json()
+				const redirectUrl = data.redirectUrl
+				console.log(redirectUrl)
+				window.location.href =  redirectUrl
 			}
 			catch (error) {
 				console.error(error)
