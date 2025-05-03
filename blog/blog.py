@@ -70,3 +70,53 @@ def showBlogPost(post_id):
     if post is None:
         print('No results for query were found')
     return render_template('blog/blog_post.html', post=post)
+
+@bp.route('/posts/<int:post_id>/update', methods=('GET', 'PUT'))
+def updatePost(post_id):
+
+    db = get_db()
+
+    if request.method == 'PUT':
+        try:
+            data = request.get_json()
+            title = data['title']
+            blog_summary = data['blogSummary']
+            blog_content = data['blogContent']
+            today = datetime.datetime.now().isoformat()
+
+            db.execute(
+            'UPDATE blog_posts '
+            'SET blog_title = ?,  synopsis = ?, created_at = ? '
+            'WHERE id = ?',
+            (title, blog_summary, today, post_id,)
+        )
+            db.commit()
+
+            db.execute(
+            'UPDATE blog_content '
+            'SET blog_post = ? '
+            'WHERE blog_post_id = ?',
+            (blog_content, post_id,)
+        )
+            db.commit()
+        except Exception as e:
+            print('An unexpected error occured: ', e)
+    
+    try:
+        post = db.execute(
+            'SELECT bp.id, bp.blog_title, bp.synopsis, bc.blog_post '
+            'FROM blog_posts bp INNER JOIN blog_content bc '
+            'ON bp.id = bc.blog_post_id '
+            'WHERE bp.id = ?', 
+            (post_id,),
+            ).fetchone()
+    
+    except Exception as e:
+        print('An unexpected error occured: ', e)
+        return 'An error occured while fetching blog post', 500
+    if  post is None:
+            print('No blog posts were found')
+
+    return render_template('blog/blog_update.html', post=post)
+
+

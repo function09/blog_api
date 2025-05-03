@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet">
+
+<body>
+	<label for='title'>Title:</label>
+		<input type="text" id="title" value={{post['blog_title']}}/>
+	<label for="blogSummary">Blog summary:</label>
+		<textarea name="blogSummary" id="blogSummary" rows="5" cols="80">{{post['synopsis']}}</textarea>
+		<div id="editor"></div> <input type="hidden" id="quillContent" name="quillContent" />
+
+	<button onclick="sendBlogData(getBlogContent())">Update</button>
+	<div id="message"></div>
+	<script>
+		const blogPost = JSON.parse({{ post['blog_post'] | tojson | safe}})
+		const textEditor = document.querySelector('#editor')
+		const toolbarOptions = [
+			['bold', 'italic', 'underline', 'strike'],
+			['blockquote', 'code-block'],
+			['link', 'image', 'video', 'formula']]
+
+		const quill = new Quill('#editor', {
+			modules: {toolbar: toolbarOptions},
+			theme: 'snow'
+		});
+
+		quill.setContents(blogPost)
+		
+		function getBlogContent() {
+			const titleInput = document.querySelector("#title")
+			const blogSummaryArea = document.querySelector('#blogSummary')
+
+			const title = titleInput.value
+			const blogSummary = blogSummaryArea.value
+
+			let blogContent
+
+			if (quill.getLength() === 1) {
+				blogContent = ""
+			} else {
+				blogContent = quill.getContents()
+			}
+
+			const blogData = {title: title, blogSummary: blogSummary, blogContent: JSON.stringify(blogContent)}
+
+			return blogData
+
+		}
+
+		async function sendBlogData(blogData) {
+			try {
+
+				const response = await fetch('http://127.0.0.1:5000/blog/posts/1/update', {
+					method: "PUT",
+					headers: {
+						"Content-Type": "application/json"
+					},
+					body: JSON.stringify(blogData)
+				})
+				if (!response.ok) {
+					const errorMessage = await response.json();
+					console.error("Error sending data to the server: ", errorMessage)
+					renderMessage(errorMessage.message)
+				}
+				const data = await response.json()
+			}
+			catch (error) {
+				console.error(error)
+			}
+
+		}
+
+		function renderMessage(message) {
+			const messageDiv = document.querySelector("#message")
+			messageDiv.textContent = message
+		}
+	</script>
+</body>
+
+</html>
