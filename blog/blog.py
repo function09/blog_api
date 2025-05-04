@@ -47,7 +47,7 @@ def create():
 def listBlogPosts():
     try:
         db = get_db()
-        posts = db.execute('SELECT id, blog_title, synopsis, created_at FROM blog_posts').fetchall()
+        posts = db.execute('SELECT id, blog_title, synopsis, created_at, last_updated FROM blog_posts').fetchall()
     except Exception as e:
         print("An unexpected error occured: ", e)
         return "An error occured while fetching from database", 500
@@ -58,7 +58,7 @@ def showBlogPost(post_id):
     db = get_db()
     try:
         post = db.execute(
-            'SELECT bp.id, bp.blog_title,bp.created_at, bp.synopsis, bc.blog_post '
+            'SELECT bp.id, bp.blog_title,bp.created_at,bp.last_updated, bp.synopsis, bc.blog_post '
             'FROM blog_posts bp ' 
             'LEFT JOIN blog_content bc ON bp.id = bc.blog_post_id ' 
             'WHERE bp.id = ?', 
@@ -86,7 +86,7 @@ def updatePost(post_id):
 
             db.execute(
             'UPDATE blog_posts '
-            'SET blog_title = ?,  synopsis = ?, created_at = ? '
+            'SET blog_title = ?,  synopsis = ?, last_updated = ? '
             'WHERE id = ?',
             (title, blog_summary, today, post_id,)
         )

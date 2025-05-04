@@ -12,6 +12,7 @@ CREATE TABLE blog_posts(
 			id INTEGER PRIMARY KEY AUTOINCREMENT, 
 			user_id INTEGER NOT NULL,
 			created_at TEXT NOT NULL,
+			last_updated TEXT,
 			blog_title TEXT NOT NULL,
 			synopsis TEXT NOT NULL,
 			published BOOLEAN NOT NULL,

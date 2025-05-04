@@ -8,7 +8,8 @@
 		<input type="text" id="title" value={{post['blog_title']}}/>
 	<label for="blogSummary">Blog summary:</label>
 		<textarea name="blogSummary" id="blogSummary" rows="5" cols="80">{{post['synopsis']}}</textarea>
-		<div id="editor"></div> <input type="hidden" id="quillContent" name="quillContent" />
+		<div id="editor"></div> 
+		<input type="hidden" id="quillContent" name="quillContent" />
 
 	<button onclick="sendBlogData(getBlogContent())">Update</button>
 	<div id="message"></div>
