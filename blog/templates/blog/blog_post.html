@@ -16,11 +16,29 @@
 
 			<a href="{{url_for('.updatePost', post_id=post['id'])}}">Edit</a> 
 		<a href="{{url_for('.listBlogPosts')}}">Return to Blog Posts</a>
+			<button  id='deleteButton'  data-post-id={{post['id']}} onclick='deleteBlogPost()'>Delete Post</button>
 </body>
 <script>
 
 const text = document.querySelector('#blogContent')
 const textObject = JSON.parse(text.textContent).ops[0].insert
 text.textContent = textObject
+const postId = document.querySelector("#deleteButton")
+const data = postId.dataset.postId
+	console.log(data)
+async function deleteBlogPost(){
+
+	const response = await fetch(`/blog/posts/${data}/delete`, {
+	method:'DELETE'
+
+	})
+	
+	if (response.ok){
+		const responseData = await response.json()
+		window.location.href = responseData.redirectUrl;
+	}
+}
+
+
 </script>
 </html>

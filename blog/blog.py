@@ -1,7 +1,7 @@
 import datetime
 from sqlite3 import Error, IntegrityError
 
-from flask import (Blueprint, flash, g, redirect, render_template, request, url_for, json, abort, session)
+from flask import (Blueprint, flash, g, jsonify, redirect, render_template, request, url_for, json, abort, session)
 
 from blog.auth import login, login_required
 from blog.db import get_db
@@ -10,7 +10,7 @@ from blog.db import get_db
 
 bp = Blueprint('blog', __name__, url_prefix='/blog')
 
-@bp.route('/create', methods=('GET','POST'))
+@bp.route('/create', methods=['GET', 'POST'])
 @login_required
 def create():
     if request.method == 'POST':
@@ -33,7 +33,6 @@ def create():
                 user_id = session.get('user_id')
                 today = datetime.datetime.now().isoformat()
                 cursor = db.execute('INSERT INTO blog_posts (user_id, created_at, blog_title, synopsis, published)' 'VALUES (?, ?, ?, ?, ?)', (user_id, today, title, blog_summary, 0))
-                db.commit()
                 db.execute('INSERT INTO blog_content (blog_post_id, blog_post)' 'VALUES(?,?)', (cursor.lastrowid, blog_content))
                 db.commit()
                 return json.jsonify({"status": 200, "message": "Blog post created successfully", "redirectUrl": url_for('blog.listBlogPosts')}), 200
@@ -58,7 +57,7 @@ def showBlogPost(post_id):
     db = get_db()
     try:
         post = db.execute(
-            'SELECT bp.id, bp.blog_title,bp.created_at,bp.last_updated, bp.synopsis, bc.blog_post '
+            'SELECT bp.id, bp.blog_title,bp.created_at, bp.last_updated, bp.synopsis, bc.blog_post '
             'FROM blog_posts bp ' 
             'LEFT JOIN blog_content bc ON bp.id = bc.blog_post_id ' 
             'WHERE bp.id = ?', 
@@ -71,7 +70,7 @@ def showBlogPost(post_id):
         print('No results for query were found')
     return render_template('blog/blog_post.html', post=post)
 
-@bp.route('/posts/<int:post_id>/update', methods=('GET', 'PUT'))
+@bp.route('/posts/<int:post_id>/update', methods=['GET', 'PUT'])
 def updatePost(post_id):
 
     db = get_db()
@@ -119,4 +118,24 @@ def updatePost(post_id):
 
     return render_template('blog/blog_update.html', post=post)
 
+@bp.route('/posts/<int:post_id>/delete', methods=['DELETE'])
+def delete_blog_post(post_id):
+    db = get_db()
+    try:
+        db.execute(
+            'DELETE FROM blog_content '
+            'WHERE blog_post_id = ?',
+        (post_id,),)
 
+        db.execute(
+            'DELETE FROM blog_posts '
+            'WHERE id = ?',
+        (post_id,),)
+ 
+        db.commit()
+        return jsonify({'message': f'Post {post_id} successfully deleted. ', 'redirectUrl': url_for('blog.listBlogPosts')}), 200
+    except Exception as e:
+        print('An unexpected error occured: ', e)
+        db.rollback()
+        abort(500, description=f"Failed to delete post {post_id}: {str(e)}")
+   
